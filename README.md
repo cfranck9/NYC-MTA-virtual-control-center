@@ -9,6 +9,7 @@ This PHP-Javascript code is to emulate a control center main display, a big scre
 3. *MTA_query.php* pulls MTA data through feed links available in [this page](http://datamine.mta.info/list-of-feeds). The route ID, station coordinates and direction for each train is saved to an xml file (train_locations.xml).
 4. Javascript code embedded in *NYC_subway_locations.html* reads the xml file and plot each train on the Google map using Google Maps API.
 5. *marker_???.png* are symbols for each line. You can find the official color codes [here](http://web.mta.info/developers/resources/line_colors.htm). Note that I am using lighter blue for A/C/E as the original color is too dark to overlay route label. I am uploading them in a separate folder here but they need to be in the same folder as the above files for execution.
+6. *MTA_query_test.py* is a short python code I used for quick test & analysis of the data from MTA.
 
 ### Disclaimer
 
