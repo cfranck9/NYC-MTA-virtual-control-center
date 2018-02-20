@@ -1,0 +1,131 @@
+<!DOCTYPE html >
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+    <title>NYC subway virtual control center</title>
+    <style>
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+      #map {
+        height: 100%;
+        width: 100%;
+        float: left;
+      }
+      /* Optional: Makes the sample page fill the window. */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+
+  <body>
+
+    <?php include("MTA_query.php"); ?>
+
+    <!-- <div id="text"></div>
+    <script>
+        document.getElementById('text').innerHTML = Date();
+    </script> -->
+
+    <div id="map"></div>
+    <script>
+      var customLabel = {
+        N: {
+          label: 'N'
+        },
+        S: {
+          label: 'S'
+        },
+        X: {
+          label: 'X'
+        }        
+      };
+
+        function initMap() {
+        var map = new google.maps.Map(document.getElementById('map'), {
+          center: new google.maps.LatLng(40.732, -73.908),
+          zoom: 12
+        });
+
+        var transitLayer = new google.maps.TransitLayer();
+        transitLayer.setMap(map);
+
+        var infoWindow = new google.maps.InfoWindow;
+
+          // Change this depending on the name of your PHP or XML file
+          downloadUrl('train_locations.xml', function(data) {
+            var xml = data.responseXML;
+            var markers = xml.documentElement.getElementsByTagName('marker');
+            Array.prototype.forEach.call(markers, function(markerElem) {
+              var name = markerElem.getAttribute('name');
+              var address = markerElem.getAttribute('address');
+              var type = markerElem.getAttribute('type');
+              // random noise to avoid markers on identical locations
+              var lat_noise = Math.random() / 25000;
+              var lon_noise = Math.random() / 25000;
+              var point = new google.maps.LatLng(
+                  parseFloat(markerElem.getAttribute('lat')) + lat_noise,
+                  parseFloat(markerElem.getAttribute('lng'))+ lon_noise);
+              var infowincontent = document.createElement('div');
+              var strong = document.createElement('strong');
+              strong.textContent = name
+              infowincontent.appendChild(strong);
+              infowincontent.appendChild(document.createElement('br'));
+
+              var text = document.createElement('text');
+              text.textContent = address
+              infowincontent.appendChild(text);
+              var icon = customLabel[type] || {};
+              var route = name.slice(0,1);
+              var route_color_id = {
+                "1":"123", "2":"123", "3":"123",
+                "4":"456", "5":"456", "6":"456",
+                "7":"7",
+                "A":"ACE", "C":"ACE", "E":"ACE",
+                "B":"BDFM", "D":"BDFM", "F":"BDFM", "M":"BDFM",
+                "G":"G",
+                "J":"JZ",
+                "L":"L",
+                "N":"NQR", "Q":"NQR", "R":"NQR",
+                "S":"S"
+              }
+              var image = 'marker_' + route_color_id[route] + '.png'
+              var marker = new google.maps.Marker({
+                map: map,
+                position: point,
+                label: route + icon.label,
+                icon: image
+              });
+              marker.addListener('click', function() {
+                infoWindow.setContent(infowincontent);
+                infoWindow.open(map, marker);
+              });
+            });
+          });
+        }
+
+      function downloadUrl(url, callback) {
+        var request = window.ActiveXObject ?
+            new ActiveXObject('Microsoft.XMLHTTP') :
+            new XMLHttpRequest;
+
+        request.onreadystatechange = function() {
+          if (request.readyState == 4) {
+            request.onreadystatechange = doNothing;
+            callback(request, request.status);
+          }
+        };
+
+        request.open('GET', url, true);
+        request.send(null);
+      }
+
+      function doNothing() {}
+    </script>
+    <script async defer
+      src="https://maps.googleapis.com/maps/api/js?key=<your API key>&callback=initMap">
+    </script>
+  </body>
+</html>
